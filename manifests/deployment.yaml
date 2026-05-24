@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: nginx-container
-          image: nginx:latest
+          image: azureuser2211.azurecr.io/todo-ui:v1
 
           ports:
             - containerPort: 80
