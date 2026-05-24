@@ -10,12 +10,12 @@ jobs:
     runs-on: self-hosted
 
     permissions:
-      id-token: write   # 👈 OIDC ke liye mandatory
-      contents: read    # 👈 checkout ke liye required
+      id-token: write   # OIDC ke liye mandatory
+      contents: read    # checkout ke liye required
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3   # latest stable version
+      uses: actions/checkout@v3
 
     - name: Azure Login (OIDC)
       uses: azure/login@v1
