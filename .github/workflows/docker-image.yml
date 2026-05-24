@@ -4,30 +4,39 @@ on:
   push:
     branches: 
       - main
+
 jobs:
   build:
     runs-on: self-hosted
+
+    permissions:
+      id-token: write   # 👈 OIDC ke liye mandatory
+      contents: read    # 👈 checkout ke liye required
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v6.0.2
-    
-    - name: Azure Login
-      uses: Azure/login@v3
+      uses: actions/checkout@v3   # latest stable version
+
+    - name: Azure Login (OIDC)
+      uses: azure/login@v1
       with:
-     
         client-id: ${{ secrets.ARM_CLIENT_ID }}
         tenant-id: ${{ secrets.ARM_TENANT_ID }}
         subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
     - name: ACR Login
       run: |
-        az acr login --name $ACR_NAME        
-      
-    - name: Build the Docker image
-      run: docker build $IMAGE_NAME:$IMAGE_TAG .
-    - name: Tag docker image
+        az acr login --name ${{ secrets.ACR_NAME }}
+
+    - name: Build Docker image
       run: |
-        docker tag $IMAGE_NAME:$IMAGE_TAG $ACR_SERVER_LOGIN/$IMAGE_NAME:$IMAGE_TAG
-    - name: Image push
+        docker build -t ${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} .
+
+    - name: Tag Docker image
       run: |
-        docker push $ACR_SERVER_LOGIN/$IMAGE_NAME:$IMAGE_TAG 
-   
+        docker tag ${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} \
+        ${{ secrets.ACR_SERVER_LOGIN }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
+
+    - name: Push Docker image
+      run: |
+        docker push ${{ secrets.ACR_SERVER_LOGIN }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
